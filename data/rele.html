@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>TR5 Rele</title>
+	<meta id="viewport" name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<script src="javascript/jquery.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+<script type = "text/javascript" language = "javascript">
+
+$(document).ready(function() {
+		$.ajaxSetup( { cache: false } );
+		//importo file e divido i valori
+		$.getJSON('scheda.json', function(jd) {
+			console.log (jd);
+			creaTable(jd);
+
+		});
+	});
+
+
+
+$(document).on('click', '.deleteRowButton', function () {
+     var rowCount = document.getElementById("light").rows.length/2;
+     var test =  $('td').closest('tr').index();
+     console.log("test: ",test);
+     //document.getElementById("light").deleteRow(test);
+     //document.getElementById("light").deleteRow(test);
+     $(this).closest('tr').prev().remove();
+     $(this).closest('tr').remove();
+     //console.log(rowCount,test);
+     num = 1
+     for (i = 0 ; i < 8; i++){
+       	labo = "lab" + i;
+       	console.log(labo,i,rowCount);
+       	try {
+       		document.getElementById(labo).innerHTML = num;
+       		dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+       		$('#'+dig).attr('id', 'dig'+(num-1));
+       		$('#'+zon).attr('id', 'zon'+(num-1));
+       		$('#'+tim).attr('id', 'tim'+(num-1));
+       		$('#'+img).attr('id', 'img'+(num-1));
+       		$('#'+lab).attr('id', 'lab'+(num-1));
+       		$('#'+ant).attr('id', 'ant'+(num-1));
+       		$('#'+zontot).attr('id', 'tot'+(num-1));
+       		num = num+1;
+       	}
+       	catch(err){
+       		console.log(err);
+       	}
+     }
+     return false;
+ });
+
+function addrow(){
+		i = document.getElementById("light").rows.length/2;
+		if (i <= 8){
+                    num=i+1
+			//console.log(i);
+			dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+			///console.log(dig,zon,tim,img,lab);
+			td = "<tr><th height = '20px' colspan ='6'> ";
+			td += "<strong> Rele n°" + "<span id=\"" + lab +"\" >"+ num +"</span></strong>";
+			td += "</th></tr><tr>";
+			td+="<td><label>digital Pin <input type='text' maxlength='2' size='5' id='" + dig + "' value = \"0\" title=\"Inserire Numero GPIO Al quale e collegato il Rele\"></label></td>";
+			td+="<td><label>Zona <input type='text' maxlength='20' size='20' id='" + zon + "' value = \"0\" title = \"Nome della Zona\"></label></td>";
+			td+="<td><label>Pin cont.<input type='text' maxlength='2' size='5' id='" + ant + "' value = \"0\" title=\"Pin Antagonista\"></label></td>";
+			td+="<td><label>Timer <input type='text' maxlength='2' size='5' id='" + tim + "' value = \"0\" title = \"\0 uso come pulsante \nda 1 a 98 timer per lo spegnimento \n99 uso come interuttore\"></label></td>";
+			td+="<td><label>Image <input type='text' maxlength='1' size='5' id='" + img + "' value = \"0\" title =\"0 per immagine lampada \n1 per Tapparella Su \n2 per Tapparella Giu \n3 per Presa Singola \n4 per Presa Multipla \n5 per Fan \n6 per Stereo \n7 per TV \n8 per Natale \n9 per Clima \n10 per Rfid \"></label></td>";
+			td+="<td ><label>Zona <input type='text' maxlength='2' size='5' id='" + zontot + "' value = \"0\" title = \"Zona per Azionamento Totale\n0 = Uso per chiudere Tutti\n1 = Uso per Apri Tutto\"></label></td>";
+			td+="<td><a background-color='ace' class=\"deleteRowButton\">delete</a></td></tr>";
+			$('#light tr:last').after(td);
+		}
+
+}
+function creaTable(jd){
+	numrele = jd.digitalver;
+	td="<table id='light' border='0'  cellspacing='0' cellpadding='3' style='width:640px;margin: 0 auto;' >";
+	for( i = 0; i < numrele; i ++ ) {
+		num = i+1;
+		dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+		//console.log(dig,zon,tim,img,ant,zontot);
+		td += "<tbody><tr><th height = '20px' colspan ='6'> ";
+		td += "<strong> Rele n°" + "<span id=\"" + lab +"\" >"+ num +"</span></strong>";
+		td += "</th></tr><tr>";
+		td+="<td ><label>digital Pin <input type='text' maxlength='2' size='5' id='" + dig + "' value = '"+jd.data[i].rele[0]+"'title=\"Inserire Numero GPIO Al quale e collegato il Rele\"></label></td>";
+		td+="<td><label>Nome Zona <input type='text' maxlength='20' size='20' id='" + zon + "' value = '" + jd.data[i].rele[1] + "' title = \"Nome della Zona\"></label></td>";
+		td+="<td><label>Pin Cont. <input type='text' maxlength='2' size='5' id='" + ant + "' value = '" + jd.data[i].rele[2] + "' title = \"Pin Antagonista\"></label></td>";
+		td+="<td ><label>Timer sec.<input type='text' maxlength='2' size='5' id='" + tim + "' value = '" + jd.data[i].rele[3] + "' title = \"0 uso come pulsante \nda 1 a 98 timer per lo spegnimento \n99 uso come interuttore\"></label></td>";
+		td+="<td ><label>Image <input type='text' maxlength='1' size='5' id='" + img + "' value = '" + jd.data[i].rele[4] + "' title = \"0 per Lampada \n1 per Tapparella Su \n2 per Tapparella Giu \n3 per Presa Singola \n4 per Presa Multipla \n5 per Fan \n6 per Stereo \n7 per TV \n8 per Natale \n9 per Clima \n10 per Rfid \"></label></td>";
+		td+="<td ><label>Zona <input type='text' maxlength='2' size='5' id='" + zontot + "' value = '" + jd.data[i].rele[5] + "' title = \"Zona per Azionamento Totale\n0 = Uso per aprire Tutte Tapparelle\n1 = Uso per Chiudere Tutte Tapparelle\n3 Accendi o Spegni Tutte Luci\"></label></td>";
+		td+="<td><a background-color='ace' class=\"deleteRowButton\">delete</a></td></tr><tbody>";
+	}
+
+	td +="</table>";
+	document.getElementById('tb0').innerHTML =td;
+}
+function savejson(){
+	var rele = [];
+	var test;
+	numPin = 0
+	for( i = 0; i < 8; i ++ ) {
+		try{
+			dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+			console.log(dig,zon,tim,img,ant,zontot);
+			test= document.getElementById(dig).value+",";
+			test += document.getElementById(zon).value+",";
+			test += document.getElementById(ant).value+",";
+			test += document.getElementById(tim).value+",";
+			test += document.getElementById(img).value+",";
+			test += document.getElementById(zontot).value;
+			rele[i]=test.split(',');
+			numPin += 1;
+                    }
+		catch(err){
+                    console.log(err);
+       		}
+            }
+
+	  sched_json = "{\"digitalver\":"+numPin+",\"data\":[";
+	  for( i = 0; i < numPin; i ++ ) {
+            console.log(i,rele[i]);
+            sched_json +="{\"rele\":[";
+            for(a = 0 ;a <5;a++){
+                sched_json += "\""+rele[i][a]+"\",";
+                }
+            sched_json += "\""+rele[i][a]+"\"]},";
+            }
+            schedule = sched_json.substring(0, sched_json.length - 1)+"]}\n";
+	  console.log(rele,schedule);
+	  window.location = "./setScheda?"+schedule ;
+
+	}
+</script>
+<style>
+body{
+	font-family: 'Comfortaa', cursive;
+}
+.centered-wrapper {
+    position: relative;
+    text-align: center;
+    background-color: rgba(208,208,240,1);
+
+}
+.centered-wrapper:before {
+    content: "";
+    position: relative;
+    display: inline-block;
+    width: 0; height: 100%;
+    vertical-align: middle;
+}
+.centered-content {
+    display: inline-block;
+    vertical-align: middle;
+}
+table {
+    margin: 0 auto;
+}
+input {
+    text-align:center;
+    }
+#light td	{
+	vertical-align:center;
+	text-align:center;
+	border-bottom: 5px solid #3dd;
+}
+input[type="text"] {
+   -webkit-appearance: none;  /*Removes default chrome and safari style*/
+   -moz-appearance: none; /* Removes Default Firefox style*/
+        /*background-color: #0088cc url(img/select-arrow.png) no-repeat 90% center;*/
+		text-indent: 0.01px; /* Removes default arrow from firefox*/
+        text-overflow: "";  /*Removes default arrow from firefox*/ /*My custom style for fonts*/
+        color: #000;
+	font-family: 'Comfortaa', cursive;
+	font-size:1.2em;
+	font-weight: bold;         /* testo in grassetto  */
+
+}
+a {
+	height: 30px;
+	width: 60px;
+	display: block;
+	background: rgba(21,199,238,1);
+	border-radius: 5px;
+}
+</style>
+
+</head>
+<body class="centered-wrapper">
+<strong>Configurazione Scheda DHT Rele</strong>
+<hr width="510px">
+
+        <div class="centered-content">
+
+			<div id="tb0"></div>
+
+			<table border="0"  cellspacing="0" cellpadding="3" style="width:510px" >
+			<tr height="10px"></tr>
+			<tr>
+			<td align="center"><input type="submit" style="width:150px" class="btn btn--m btn--blue" onclick="savejson()" value="Salva"></td>
+			<td align="center"><input type="submit" style="width:150px" class="btn btn--m btn--blue" onclick="window.location = './';" value="Home"></td>
+			<td align="center"><input type="submit" style="width:150px" class="btn btn--m btn--blue" onclick="addrow()" value="Add Rele"></td>
+			</tr>
+			</table>
+		</div>
+
+</body>

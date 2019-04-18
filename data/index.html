@@ -1,0 +1,247 @@
+<!--
+  Index page
+  Jpnos  2017
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta id="viewport" name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery-ui.min.js"></script>
+	<link rel=stylesheet href="css/index.css">
+	<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+  <script type="text/javascript">
+    //creo le variabili e le setto
+    	var stato,pending;
+    	stato="ON";
+		  pending=0;
+		  var reloadPeriod = 60000;
+    	var running = false;
+    	var gpio = [];
+    	var zona = [];
+    	var timer = [];
+    	var image = [10];
+
+    //inizio la lettura da esp8266 e vai
+	$(document).ready(function() {
+		var dlg=$('#reboot').dialog({
+			autoOpen:false,
+			modal: true,
+			show:'blind',
+			hide: 'blind',
+			width:600,
+			height:500,
+			dialogClass: 'ui-dialog-osx',
+			position: {
+				my: 'top',
+				at: 'top',
+				of: $('#schermo')
+			},
+			close: function() {
+				window.location.reload();
+			}
+		});
+		 $("#reboot.ui-dialog-titlebar").hide();
+
+			$('#reboot_test').click(function(e) {
+				console.log("click");
+				dlg.load('./riavvio.html');
+				e.preventDefault();
+				dlg.dialog('open');
+			});
+		console.log("ready..... go");
+
+		$.ajaxSetup( { cache: false } );
+		//importo file e divido i valori
+		$.getJSON('menu.json', function(jd) {
+			console.log (jd);
+			creaTable(jd);
+
+
+	});
+		run()
+
+	});
+	function loadImages(){
+      //if(!running) return;
+	  console.log("loadImage is running......");
+      var xh = new XMLHttpRequest();
+      console.log(xh)
+      xh.onreadystatechange = function(){
+        if (xh.readyState == 4){
+          if(xh.status == 200) {
+            var imageSplit = xh.responseText.split(",");
+            var c = 0;
+            for (i = 0;i <imageSplit.length;i +=2){
+              console.log(imageSplit[i]);
+              image[c] = new Array();
+              image[c][0] = imageSplit[i];
+              image[c][1] = imageSplit[i+1];
+				      c=c+1;
+            }
+			   }
+            console.log("array Image ",image);
+			}
+		}	
+
+      xh.open("GET", "/webImage", true);
+      xh.send(null);
+  };           
+	function loadValues(){
+      //if(!running) return;
+	  console.log("loadvalues is running......");
+      var xh = new XMLHttpRequest();
+      console.log(xh)
+      xh.onreadystatechange = function(){
+        if (xh.readyState == 4){
+          if(xh.status == 200) {
+            console.log("Entrati",xh.responseText);
+            var res = JSON.parse(xh.responseText);
+	    	console.log(res);
+	    	gpio = (res.gpio.splice(0,res.digitalVer));
+	    	zona = (res.zona.splice(0,res.digitalVer));
+	    	timer = (res.timer.splice(0,res.digitalVer));
+	    	ima = (res.image.splice(0,res.digitalVer));
+	    	console.log(gpio,zona,timer,ima);
+	    	document.getElementById ("intestazione").innerHTML = res.name;
+			info = "<ul id = \"info\">"
+			info += "<li><a href='#'>"+res.version+"</a><ul>";
+			document.title = res.name;
+			document.getElementById("info").innerHTML = info ;
+	    	creadata = "<table  id=\"light\" align=\"center\" width=\"400px\" >"
+	    	creadata += "<tr height=\" 20px\ width=\"120px\" id = \"linea\" overflow:hidden>";
+	    	for ( i = 0 ; i < res.digitalVer; i += 2){
+				  test = "name"+i;
+				  creadata += "<td width=\"120px\" overflow:hidden><h3 id=\""+test+"\"  align=\"center\" style=\" color: black \"></h3></td>";
+			  }
+			  creadata += "</tr><tr id = \"sopra\">";
+			  for ( i = 0 ; i < res.digitalVer; i += 2){
+				  test = "light"+i;
+				  if (gpio[i] == 0){
+				    creadata += "<td width=\"120px\" overflow:hidden><img src =\""+image[ima[i]][0]+"\" id=\""+test+"\"   onclick=\"send("+String(i)+")\"></td>";
+				  }
+				  else if(gpio[i] == 1){
+				    creadata += "<td width=\"120px\" overflow:hidden><img src =\""+image[ima[i]][1]+"\" id=\""+test+"\"   onclick=\"send("+String(i)+")\"></td>";
+				  }
+			  }
+			  creadata += "</tr><tr height=\"20px\" width = \"120px\" id= \"linea\" overflow:hidden>";
+			  for ( i = 1 ; i < res.digitalVer; i += 2){
+				  test = "name"+i;
+				  creadata += "<td width=\"120px\" overflow:hidden><h3 id=\""+test+"\"  align=\"center\" style=\" color: black \"></h3></td>";
+			    }
+			  creadata += "</tr><tr>";
+			  for ( i = 1 ; i < res.digitalVer; i += 2){
+				  test = "light"+i;
+				  if (gpio[i] == 0){
+				    creadata += "<td width=\"120px\" overflow:hidden><img src =\""+image[ima[i]][0]+"\" id=\""+test+"\"   onclick=\"send("+String(i)+")\"></td>";
+				  }
+				  else if(gpio[i] == 1){
+				    creadata += "<td width=\"120px\" overflow:hidden><img src =\""+image[ima[i]][1]+"\" id=\""+test+"\"   onclick=\"send("+String(i)+")\"></td>";
+				  }
+			  }
+			  creadata += "</tr>";
+			document.getElementById ("light").innerHTML = creadata;
+			console.log (creadata);
+	    	
+			console.log("reloadPeriod -......",reloadPeriod);
+			setTimeout(loadValues, reloadPeriod);
+      } else running = false;
+        	}
+      	};
+     	xh.open("GET", "/gpio", true);
+      	xh.send(null);
+    };
+    function run(){
+      if(!running){
+		running = true;
+		console.log("running.....");
+
+		// creo la data
+		var data = new Date();
+		var gg, mm, aaaa;
+		gg = data.getDate() + ".";
+		mm = data.getMonth() + 1 + ".";
+		aaaa = data.getFullYear();
+		//document.getElementById("oggi").value =  gg + mm + aaaa;
+		//inizializzo la rilettura
+		console.log("load Values -......");
+		loadImages();
+		loadValues();
+		
+      }
+    }
+
+	function send(canale){
+		if (gpio[canale] == 0){
+			indirizzo="setRele?" + zona[canale]+"= 1";
+			}
+		else{
+			indirizzo="setRele?" + zona[canale]+"= 0";
+			}
+		console.log (indirizzo);
+		window.location = "./"+indirizzo ;
+	}
+	function creaTable(jd){
+            //console.log(jd);
+            td ="";
+            for(var key in jd.lista) {
+                td +="<li><a title =\""+jd.lista[key].comando+"\" href='"+jd.lista[key].comando+"'>"+jd.lista[key].nome+"</a></li>";
+                //console.log(jd.lista[key].comando);
+                }
+                document.getElementById('menu_add').innerHTML =td;
+	}
+</script>
+
+</head>
+<body>
+    <table id ="schermo" width="400px" style="margin:0 auto;">
+    <tr>
+        <td>
+         <div id="drop-menu">
+          <ul id="menu">
+                <li><a href="#">Menu</a>
+	        				<ul>
+										<li><a href="/network.html">Configurazione Rete</a></li>
+	                  <li><a href="/rele.html">Configurazione Relay</a></li>
+	                  <li><a href="/menu.html">Configurazione Scenari</a></li
+										<li><a href="#">Riavvio</a>
+	                      <ul>
+	                      <li><a href="/Restart">Attiva Riavvio</a></li>
+	                      </ul>
+										<li><a href = "#">Info</a>
+		                     <ul id = "info">
+		                     </ul></li>
+									</ul>
+							<li><a href="/panicStop">Emergenza</a></li>
+							<li><a>Scenari</a> <ul id = "menu_add"></ul>
+              </ul>
+        </div>
+        </td>
+    </tr>
+		<tr>
+        <td >
+        <div id="intesta" align="center">
+          <h1  id = "intestazione" width="400px" align="center" style=" color: black">Termostat Relay 5</h1>
+        </div>
+        </td>
+    </tr>
+    </table><br>
+	<table  id="light" align="center" width="400px" >
+	</table>
+</body>
+</html>
+

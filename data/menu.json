@@ -1,0 +1,1 @@
+{"lista":[  {"nome":"Tapparelle Sù","comando":"./setAll?set=0&tipo=1"},{"nome":"Tapparelle Giù","comando":"./setAll?set=1&tipo=1"},{"nome":"Luci On","comando":"./setAll?set=3&tipo=1"},{"nome":"Luci Off","comando":"./setAll?set=3&tipo=0"}]}

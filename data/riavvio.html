@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+  		<meta charset="utf-8">
+  		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  		<meta id="viewport" name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  		<script src="javascript/jquery.js"></script>
+        <title>TR5 Rele Reboot ....</title>
+		<script type="text/javascript">
+		var sTime = new Date().getTime();
+		var countDown = 10;
+		function UpdateTime() {
+		var cTime = new Date().getTime();
+		var diff = cTime - sTime;
+		var seconds = countDown - Math.floor(diff / 1000);
+		if (seconds >= 0) {
+			if (seconds == 7){
+				$.get( "/Restart");
+			}
+			var minutes = Math.floor(seconds / 60);
+			seconds -= minutes * 60;
+			$("#minutes").text(minutes < 10 ? "0" + minutes : minutes);
+			$("#seconds").text(seconds < 10 ? "0" + seconds : seconds);
+		}
+		else {
+			window.location = './index.html';
+			clearInterval(counter);
+			}
+		}
+		UpdateTime();
+		var counter = setInterval(UpdateTime, 500);
+	</script>
+	</head>
+    <body bgcolor = "#d0d0f0">
+    		<div align="center"><h2>Thermostat Rele</h2>
+				<table id = "tab2" width = "400px" border="0" cellspacing="0" cellpadding="10" style="margin: 0px auto;">
+					<tr height="100px"></tr>
+					<tr>
+
+					<td width="70%" style="font-family:Comfortaa; font-size:16pt;">
+						<div id="countdown1" style="font-family:Comfortaa;">
+						<p>Reboot in corso:</p></div>
+					</td>
+					<td width="30%" style="font-family:Comfortaa; font-size:20pt;">
+						<div id="countdown"></div>
+						<div id="minutes" style="float:left; font-family:Comfortaa;">00</div>
+						<div style="float:left">:</div>
+						<div id="seconds" style="float:left; font-family:Comfortaa;">00</div>
+					</td>
+					</tr>
+				</table>
+
+			</div>
+
+    </body>
+</html>

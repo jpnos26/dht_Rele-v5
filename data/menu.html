@@ -1,0 +1,204 @@
+<!--
+  Index page
+  Jpnos  2017
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>TR5 Scenari</title>
+	<meta id="viewport" name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery-ui.min.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+	<script type="text/javascript">
+        $(document).ready(function() {
+		$.ajaxSetup( { cache: false } );
+		//importo file e divido i valori
+		$.getJSON('menu.json', function(jd) {
+			console.log (jd);
+			creaTable(jd);
+
+		});
+	});
+
+
+
+$(document).on('click', '.deleteRowButton', function () {
+     var rowCount = document.getElementById("light").rows.length/2;
+     var test =  $('td').closest('tr').index();
+     console.log("test: ",test);
+     //document.getElementById("light").deleteRow(test);
+     //document.getElementById("light").deleteRow(test);
+     $(this).closest('tr').prev().remove();
+     $(this).closest('tr').remove();
+     //console.log(rowCount,test);
+     num = 1
+     for (i = 0 ; i < 20; i++){
+       	labo = "lab" + i;
+       	console.log(labo,i,rowCount);
+       	try {
+       		document.getElementById(labo).innerHTML = num;
+       		dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+       		$('#'+dig).attr('id', 'dig'+(num-1));
+       		$('#'+zon).attr('id', 'zon'+(num-1));
+       		$('#'+tim).attr('id', 'tim'+(num-1));
+       		$('#'+img).attr('id', 'img'+(num-1));
+       		$('#'+lab).attr('id', 'lab'+(num-1));
+       		$('#'+ant).attr('id', 'ant'+(num-1));
+       		$('#'+zontot).attr('id', 'tot'+(num-1));
+       		num = num+1;
+       	}
+       	catch(err){
+       		console.log(err);
+       	}
+     }
+     return false;
+ });
+
+function addrow(){
+		i = document.getElementById("light").rows.length/2;
+		if (i <= 20){
+                    num=i+1
+			//console.log(i);
+			dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+			///console.log(dig,zon,tim,img,lab);
+			td = "<tr><th height = '20px' colspan ='6'> ";
+			td += "<strong> Comando n°" + "<span id=\"" + lab +"\" >"+ num +"</span></strong>";
+			td += "</th></tr><tr>";
+			td+="<td><label>Nome Comando <input type='text' maxlength='30' size='30' id='" + dig + "' value = \"\" title=\"Inserire il nome da Visualizzare nel menu\"></label></td>";
+			td+="<td><label>Comando da Inviare  <input type='text' maxlength='30' size='30' id='" + zon + "' value = \"\" title = \"Comando da Inviare\"></label></td>";
+			td+="<td><a background-color='ace' class=\"deleteRowButton\">delete</a></td></tr>";
+			$('#light tr:last').after(td);
+		}
+
+}
+function creaTable(jd){
+	numrele = jd.digitalver;
+	td="<table id='light' border='0'  cellspacing='0' cellpadding='3' style='width:640px;margin: 0 auto;' >";
+	for(var i in jd.lista) {
+                console.log(i)
+		num = Number(i)+1;
+		dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+		//console.log(dig,zon,tim,img,ant,zontot);
+		td += "<tbody><tr><th height = '20px' colspan ='3'> ";
+		td += "<strong> Comando  n°" + "<span id=\"" + lab +"\" >"+ num +"</span></strong>";
+		td += "</th></tr><tr>";
+		td+="<td ><label>Nome Comando <input type='text' maxlength='30' size='30' id='" + dig + "' value = '"+jd.lista[i].nome+"'title=\"Inserire il nome da Visualizzare nel menu\"></label></td>";
+		td+="<td><label>Comando da Inviare <input type='text' maxlength='30' size='30' id='" + zon + "' value = '" + jd.lista[i].comando + "' title = \"Comando ./setAll?set=X&tipo=Y\nDove X è la zona da comandare \nDove Y=1 Attiva tutti i relè della zona e Y=0 Disattiva tutti i relè della zona\"></label></td>"; 
+		td+="<td><a background-color='ace' class=\"deleteRowButton\">delete</a></td></tr><tbody>";
+	}
+
+	td +="</table>";
+	document.getElementById('tb0').innerHTML =td;
+}
+function savejson(){
+	var test;
+	test="[";
+	for( i = 0; i < 20; i ++ ) {
+		try{
+			dig = "dig"+i;zon="zon"+i;tim="tim"+i;img="img"+i;lab ="lab"+i;ant="ant"+i;zontot="tot"+i;
+			//console.log(dig,zon,tim,img,ant,zontot);
+			test += "{\"nome\":\""+document.getElementById(dig).value+"\",";
+			test += "\"comando\":\""+document.getElementById(zon).value+"\"},";
+                    }
+		catch(err){
+                    console.log(err);
+       		}
+            }
+
+            sched_json = "{\"lista\":"+test;
+            schedule = sched_json.substring(0, sched_json.length - 1)+"]}\n";
+            var schedule1 = schedule.replace(/=/g, "uguale");
+            var schedule2 = schedule1.replace(/&/g,"ampersand");
+	  console.log(schedule);
+	  console.log(schedule2);
+	  window.location = "./setMenu?data="+schedule2;
+
+	}
+</script>
+<style>
+body{
+	background-color: rgba(208,208,240,1);
+  font-family: 'Comfortaa', cursive;
+}
+.centered-wrapper {
+    position: relative;
+    text-align: center;
+}
+.centered-wrapper:before {
+    content: "";
+    position: relative;
+    display: inline-block;
+    width: 0; height: 100%;
+    vertical-align: middle;
+}
+.centered-content {
+    display: inline-block;
+    vertical-align: middle;
+}
+table {
+    margin: 0 auto;
+}
+input {
+    text-align:center;
+    }
+#light td	{
+	vertical-align:center;
+	text-align:center;
+	border-bottom: 5px solid #3dd;
+}
+input[type="text"] {
+   -webkit-appearance: none;  /*Removes default chrome and safari style*/
+   -moz-appearance: none; /* Removes Default Firefox style*/
+        /*background-color: #0088cc url(img/select-arrow.png) no-repeat 90% center;*/
+		text-indent: 0.01px; /* Removes default arrow from firefox*/
+        text-overflow: "";  /*Removes default arrow from firefox*/ /*My custom style for fonts*/
+        color: #000;
+	font-family: 'Comfortaa', cursive;
+	font-size:1.2em;
+	font-weight: bold;         /* testo in grassetto  */
+
+}
+a {
+	height: 30px;
+	width: 60px;
+	display: block;
+	background: rgba(21,199,238,1);
+	border-radius: 5px;
+}
+</style>
+
+</head>
+<body class="centered-wrapper">
+<strong>Configurazione Scenari</strong>
+<hr width="510px">
+
+        <div class="centered-content">
+
+			<div id="tb0"></div>
+
+			<table border="0"  cellspacing="0" cellpadding="3" style="width:510px" >
+			<tr height="10px"></tr>
+			<tr>
+			<td align="center"><input type="submit" style="width:150px" class="btn btn--m btn--blue" onclick="savejson()" value="Salva"></td>
+			<td align="center"><input type="submit" style="width:150px" class="btn btn--m btn--blue" onclick="window.location = './';" value="Home"></td>
+			<td align="center"><input type="submit" style="width:150px" class="btn btn--m btn--blue" onclick="addrow()" value="Agiungi Scenario"></td>
+			</tr>
+			</table>
+		</div>
+
+</body>
